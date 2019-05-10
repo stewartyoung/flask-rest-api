@@ -8,8 +8,8 @@ app = Flask(__name__)
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 # Set up database
-app.config['SQLACHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'dbsqlite')
-app.config['SQLACLEHMY_TRACK_MODIFICATIONS'] = flask_sqlalchemy
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'dbsqlite')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Initialise database
 db = SQLAlchemy(app)
@@ -18,9 +18,9 @@ db = SQLAlchemy(app)
 ma = Marshmallow(app)
 
 # Product Class/Model
-class Product(db.model):
+class Product(db.Model):
  # primary_key=True will auto increment
- id = db.Column(db.integer, primary_key = True)
+ id = db.Column(db.Integer, primary_key = True)
  # 100 is limit on charecters
  name = db.Column(db.String(100), unique = True)
  description = db.Column(db.String(200))
@@ -32,6 +32,16 @@ class Product(db.model):
   self.description = description
   self.price = price
   self.qty = qty
+
+# Product Schema
+class ProductSchema(ma.Schema):
+ class Meta:
+  fields = ('id', 'name', 'description', 'price', 'qty')
+
+# intialise schema
+product_schema = ProductSchema(strict=True)
+products_schema = ProductSchema(many=True, strict=True)
+
 
 # Run the server
 if __name__ == "__main__":
