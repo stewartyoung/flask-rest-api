@@ -27,7 +27,7 @@ class Product(db.Model):
  price = db.Column(db.Float)
  qty = db.Column(db.Integer)
 
- def __init(self, name, description, price, qty):
+ def __init__(self, name, description, price, qty):
   self.name = name
   self.description = description
   self.price = price
@@ -42,20 +42,62 @@ class ProductSchema(ma.Schema):
 product_schema = ProductSchema(strict=True)
 products_schema = ProductSchema(many=True, strict=True)
 
-# Create a product_schema
-@app.route('/product', methods=['post'])
+# Create a post product route
+@app.route('/product', methods=['POST'])
 def add_product():
  name = request.json['name']
- description = request.json['name']
- price = request.json['name']
- qty = request.json['name']
+ description = request.json['description']
+ price = request.json['price']
+ qty = request.json['qty']
 
- new_product = Prodcut(name, description, price, qty)
+ new_product = Product(name, description, price, qty)
 
  db.session.add(new_product)
  db.session.commit()
 
  return product_schema.jsonify(new_product)
+
+# Create a get all products route
+@app.route('/product', methods=['GET'])
+def get_products():
+ all_products = Product.query.all()
+ result = products_schema.dump(all_products)
+ return jsonify(result.data)
+
+# Create a get single product route
+@app.route('/product/<id>', methods=['GET'])
+def get_product(id):
+ product = Product.query.get(id)
+ return product_schema.jsonify(product)
+
+# Update a product on a route
+@app.route('/product/<id>', methods=['PUT'])
+def update_product(id):
+ product = Product.query.get(id)
+
+ name = request.json['name']
+ description = request.json['description']
+ price = request.json['price']
+ qty = request.json['qty']
+
+ product.name = name
+ product.description = description
+ product.price = price
+ product.qty = qty
+
+ db.session.commit()
+
+ return product_schema.jsonify(product)
+
+ # Delete a product route
+@app.route('/product/<id>', methods=['DELETE'])
+def delete_product(id):
+ product = Product.query.get(id)
+ db.session.delete(product)
+ db.session.commit()
+ 
+ return product_schema.jsonify(product)
+
 
 # Run the server
 if __name__ == "__main__":
